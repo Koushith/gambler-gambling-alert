@@ -105,10 +105,27 @@
     </div>
 
     <h2>📚 Getting Started</h2>
-    <p>
-      Start using the bot by sending the <code>/start</code> command on Telegram. This will show you all available
-      commands and features.
-    </p>
+    <div class="card" style="margin-bottom: 2rem">
+      <h3>🤖 Find the Bot</h3>
+      <p>Follow these steps to start using CryptoAlertBot:</p>
+      <ol style="margin-left: 1.5rem; margin-top: 0.5rem">
+        <li>Open Telegram and search for <code>@Sigma_degens_bot</code></li>
+        <li>Click "Start" or send the <code>/start</code> command</li>
+        <li>The bot will respond with a welcome message and available commands</li>
+      </ol>
+      <div class="tip" style="margin-top: 1rem">
+        <strong>💡 Quick Start:</strong>
+        <p style="margin-top: 0.5rem">
+          Click this link to open the bot directly:
+          <a
+            href="https://t.me/Sigma_degens_bot"
+            style="color: var(--primary-color); text-decoration: none; border-bottom: 1px solid currentColor"
+          >
+            @Sigma_degens_bot
+          </a>
+        </p>
+      </div>
+    </div>
 
     <div class="grid">
       <div class="card">
@@ -131,22 +148,65 @@
       </div>
     </div>
 
-    <h2>�� Alert Types</h2>
+    <h2>📈 Alert Examples</h2>
 
-    <h3>1. Percentage Change Alert</h3>
-    <p>Get notified when a token's price moves up or down by a specific percentage.</p>
-    <div class="command">/subscribe BTC 5 up</div>
-    <div class="example">This will alert you when Bitcoin price increases by 5% from the current price.</div>
+    <h3>Percentage Change Alerts</h3>
+    <div class="grid">
+      <div class="card">
+        <div class="command">/subscribe BTC 5 up</div>
+        <div class="example">Alert when Bitcoin increases by 5%</div>
+      </div>
+      <div class="card">
+        <div class="command">/subscribe ETH 10 down</div>
+        <div class="example">Alert when Ethereum drops by 10%</div>
+      </div>
+      <div class="card">
+        <div class="command">/subscribe SOL 15 up</div>
+        <div class="example">Alert when Solana pumps by 15%</div>
+      </div>
+    </div>
 
-    <h3>2. Exact Price Alert</h3>
-    <p>Get notified when a token reaches a specific price.</p>
-    <div class="command">/subscribe BTC at 45000</div>
-    <div class="example">This will alert you when Bitcoin reaches exactly $45,000.</div>
+    <h3>Price Level Alerts</h3>
+    <div class="grid">
+      <div class="card">
+        <div class="command">/subscribe BTC above 50000</div>
+        <div class="example">Alert when Bitcoin crosses above $50,000</div>
+      </div>
+      <div class="card">
+        <div class="command">/subscribe ETH below 2000</div>
+        <div class="example">Alert when Ethereum falls below $2,000</div>
+      </div>
+      <div class="card">
+        <div class="command">/subscribe BNB above 300</div>
+        <div class="example">Alert when BNB goes above $300</div>
+      </div>
+    </div>
 
-    <h3>3. Price Level Alert</h3>
-    <p>Get notified when a token goes above or below a specific price.</p>
-    <div class="command">/subscribe BTC above 45000</div>
-    <div class="example">This will alert you when Bitcoin price goes above $45,000.</div>
+    <h3>Exact Price Alerts</h3>
+    <div class="grid">
+      <div class="card">
+        <div class="command">/subscribe BTC at 45000</div>
+        <div class="example">Alert when Bitcoin hits exactly $45,000</div>
+      </div>
+      <div class="card">
+        <div class="command">/subscribe ETH at 2500</div>
+        <div class="example">Alert when Ethereum reaches $2,500</div>
+      </div>
+      <div class="card">
+        <div class="command">/subscribe XRP at 1</div>
+        <div class="example">Alert when XRP hits $1.00</div>
+      </div>
+    </div>
+
+    <div class="tip">
+      <strong>🔥 Pro Tips:</strong>
+      <ul style="margin-top: 0.5rem">
+        <li>You can set multiple alerts for the same token</li>
+        <li>Combine different alert types to create a comprehensive monitoring strategy</li>
+        <li>Use percentage alerts for short-term moves</li>
+        <li>Use price level alerts for long-term targets</li>
+      </ul>
+    </div>
 
     <h2>🔍 Finding Tokens</h2>
     <p>Use the /tokens command to browse or search for available tokens:</p>
@@ -169,13 +229,37 @@
       <li>Supports top 250 cryptocurrencies by market cap</li>
     </ul>
 
-    <h2>❓ Need Help?</h2>
-    <p>If you need assistance or want to report an issue:</p>
-    <ul>
-      <li>Use the /help command in the bot</li>
-      <li>Contact support: @YourSupportHandle</li>
-      <li>Visit our GitHub repository: [Your Repository Link]</li>
-    </ul>
+    <section
+      class="help-section"
+      style="margin-top: 4rem; padding: 2rem; background: var(--card-bg); border-radius: 12px; text-align: center"
+    >
+      <h2>🤝 Need Help?</h2>
+      <p style="margin: 1rem 0">Having issues or want to suggest new features? Reach out!</p>
+
+      <div
+        class="contact-grid"
+        style="display: flex; gap: 1.5rem; justify-content: center; flex-wrap: wrap; margin: 1.5rem 0"
+      >
+        <a
+          href="https://t.me/koushith"
+          class="contact-item"
+          style="display: flex; align-items: center; gap: 0.5rem; text-decoration: none; color: inherit"
+        >
+          <span style="font-size: 1.2rem">📱</span>
+          <span>Telegram: @koushith.eth</span>
+        </a>
+        <a
+          href="mailto:koushith97@gmail.com"
+          class="contact-item"
+          style="display: flex; align-items: center; gap: 0.5rem; text-decoration: none; color: inherit"
+        >
+          <span style="font-size: 1.2rem">📧</span>
+          <span>Email: koushith97@gmail.com</span>
+        </a>
+      </div>
+
+      <p style="font-size: 0.9rem; color: var(--text-secondary)">We typically respond within 24 hours</p>
+    </section>
 
     <footer style="text-align: center; margin-top: 3rem; padding: 2rem; border-top: 1px solid var(--border-color)">
       <p>CryptoAlertBot © 2024 - All rights reserved</p>

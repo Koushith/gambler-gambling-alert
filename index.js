@@ -3,7 +3,7 @@ const express = require('express');
 const TelegramBot = require('node-telegram-bot-api');
 const mongoose = require('mongoose');
 const axios = require('axios');
-const setupBotCommands = require('./bot/commands'); // Make sure this path is correct
+const setupBotCommands = require('./bot/commands');
 
 const app = express();
 app.use(express.json());
