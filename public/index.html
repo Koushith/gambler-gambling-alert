@@ -229,6 +229,56 @@
       <li>Supports top 250 cryptocurrencies by market cap</li>
     </ul>
 
+    <h2>Available Commands</h2>
+    <ul>
+      <li>
+        <strong>Percentage Change Alert:</strong><br />
+        <code>/subscribe &lt;token&gt; &lt;percentage&gt; &lt;up/down&gt;</code><br />
+        Example: <code>/subscribe BTC 5 up</code><br />
+        Triggers when price moves up/down by specified percentage
+      </li>
+      <li>
+        <strong>Exact Price Alert:</strong><br />
+        <code>/subscribe &lt;token&gt; at &lt;price&gt;</code><br />
+        Example: <code>/subscribe BTC at 45000</code><br />
+        Triggers when price reaches the exact value (within 0.1% tolerance)
+      </li>
+      <li>
+        <strong>Price Level Alert:</strong><br />
+        <code>/subscribe &lt;token&gt; &lt;above/below/greaterthan/lessthan&gt; &lt;price&gt;</code><br />
+        Examples:<br />
+        <code>/subscribe BTC above 45000</code><br />
+        <code>/subscribe BTC greaterthan 45000</code><br />
+        <code>/subscribe BTC below 45000</code><br />
+        <code>/subscribe BTC lessthan 45000</code><br />
+        Triggers when price crosses above or below the specified level
+      </li>
+      <li>
+        <strong>List Alerts:</strong><br />
+        <code>/list</code><br />
+        Shows all your active alerts
+      </li>
+      <li>
+        <strong>View Tokens:</strong><br />
+        <code>/tokens</code> - List all supported tokens<br />
+        <code>/tokens &lt;search&gt;</code> - Search for specific tokens
+      </li>
+      <li>
+        <strong>Help:</strong><br />
+        <code>/help</code> - Show detailed usage guide
+      </li>
+    </ul>
+
+    <h2>Notes</h2>
+    <ul>
+      <li>Alerts are automatically removed once triggered</li>
+      <li>You can have multiple alerts for the same token</li>
+      <li>Price checks occur every minute</li>
+      <li>For exact price alerts, there's a 0.1% tolerance to account for price fluctuations</li>
+      <li>"greaterthan" and "above" are equivalent commands</li>
+      <li>"lessthan" and "below" are equivalent commands</li>
+    </ul>
+
     <section
       class="help-section"
       style="margin-top: 4rem; padding: 2rem; background: var(--card-bg); border-radius: 12px; text-align: center"
