@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CryptoAlertBot Documentation</title>
+    <style>
+      :root {
+        --primary-color: #2563eb;
+        --secondary-color: #1e40af;
+        --text-color: #1f2937;
+        --code-bg: #f3f4f6;
+        --border-color: #e5e7eb;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        line-height: 1.6;
+        color: var(--text-color);
+        padding: 2rem;
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+
+      .header {
+        text-align: center;
+        margin-bottom: 3rem;
+        padding: 2rem;
+        background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+        color: white;
+        border-radius: 12px;
+      }
+
+      h1 {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+      }
+
+      h2 {
+        font-size: 1.8rem;
+        margin: 2rem 0 1rem;
+        color: var(--primary-color);
+      }
+
+      h3 {
+        font-size: 1.3rem;
+        margin: 1.5rem 0 0.5rem;
+      }
+
+      p {
+        margin-bottom: 1rem;
+      }
+
+      .command {
+        background-color: var(--code-bg);
+        padding: 1rem;
+        border-radius: 8px;
+        margin: 1rem 0;
+        font-family: monospace;
+      }
+
+      .example {
+        border-left: 4px solid var(--primary-color);
+        padding-left: 1rem;
+        margin: 1rem 0;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+        margin: 2rem 0;
+      }
+
+      .card {
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        padding: 1.5rem;
+      }
+
+      .tip {
+        background-color: #dbeafe;
+        padding: 1rem;
+        border-radius: 8px;
+        margin: 1rem 0;
+      }
+
+      @media (max-width: 768px) {
+        body {
+          padding: 1rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <h1>🤖 CryptoAlertBot Documentation</h1>
+      <p>Your personal cryptocurrency price alert assistant</p>
+    </div>
+
+    <h2>📚 Getting Started</h2>
+    <p>
+      Start using the bot by sending the <code>/start</code> command on Telegram. This will show you all available
+      commands and features.
+    </p>
+
+    <div class="grid">
+      <div class="card">
+        <h3>🎯 Setting Alerts</h3>
+        <p>There are three types of alerts you can set:</p>
+        <ul>
+          <li>Percentage Change</li>
+          <li>Exact Price</li>
+          <li>Price Level (Above/Below)</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>📊 Managing Alerts</h3>
+        <p>Use these commands to manage your alerts:</p>
+        <ul>
+          <li>/list - View active alerts</li>
+          <li>/tokens - Browse available tokens</li>
+          <li>/help - Get detailed help</li>
+        </ul>
+      </div>
+    </div>
+
+    <h2>�� Alert Types</h2>
+
+    <h3>1. Percentage Change Alert</h3>
+    <p>Get notified when a token's price moves up or down by a specific percentage.</p>
+    <div class="command">/subscribe BTC 5 up</div>
+    <div class="example">This will alert you when Bitcoin price increases by 5% from the current price.</div>
+
+    <h3>2. Exact Price Alert</h3>
+    <p>Get notified when a token reaches a specific price.</p>
+    <div class="command">/subscribe BTC at 45000</div>
+    <div class="example">This will alert you when Bitcoin reaches exactly $45,000.</div>
+
+    <h3>3. Price Level Alert</h3>
+    <p>Get notified when a token goes above or below a specific price.</p>
+    <div class="command">/subscribe BTC above 45000</div>
+    <div class="example">This will alert you when Bitcoin price goes above $45,000.</div>
+
+    <h2>🔍 Finding Tokens</h2>
+    <p>Use the /tokens command to browse or search for available tokens:</p>
+    <ul>
+      <li><code>/tokens</code> - List all supported tokens</li>
+      <li><code>/tokens btc</code> - Search for Bitcoin</li>
+      <li><code>/tokens ethereum</code> - Search by name</li>
+    </ul>
+
+    <div class="tip">
+      <strong>💡 Pro Tip:</strong> Use exact symbol matching for precise results. For example, use "/tokens btc" instead
+      of "/tokens bitcoin" to find Bitcoin quickly.
+    </div>
+
+    <h2>⚙️ Technical Details</h2>
+    <ul>
+      <li>Prices are checked every minute</li>
+      <li>Alerts trigger only once and are then automatically removed</li>
+      <li>Price data is sourced from CoinGecko API</li>
+      <li>Supports top 250 cryptocurrencies by market cap</li>
+    </ul>
+
+    <h2>❓ Need Help?</h2>
+    <p>If you need assistance or want to report an issue:</p>
+    <ul>
+      <li>Use the /help command in the bot</li>
+      <li>Contact support: @YourSupportHandle</li>
+      <li>Visit our GitHub repository: [Your Repository Link]</li>
+    </ul>
+
+    <footer style="text-align: center; margin-top: 3rem; padding: 2rem; border-top: 1px solid var(--border-color)">
+      <p>CryptoAlertBot © 2024 - All rights reserved</p>
+      <p style="margin-top: 0.5rem; color: var(--primary-color); font-weight: 500">
+        Project by
+        <a
+          href="https://github.com/koushith"
+          style="color: inherit; text-decoration: none; border-bottom: 1px solid currentColor"
+          >Koushith B R</a
+        >
+      </p>
+    </footer>
+  </body>
+</html>
