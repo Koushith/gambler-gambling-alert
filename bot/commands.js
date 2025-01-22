@@ -25,9 +25,15 @@ async function fetchWithRetry(apiCall, retries = MAX_RETRIES) {
 
 // Price monitoring function
 async function monitorPrices(bot) {
+  console.log('Running price check...');
   try {
     // Get all active alerts
     const users = await User.find({ 'alerts.0': { $exists: true } });
+    console.log(`Found ${users.length} users with active alerts`);
+
+    if (users.length === 0) {
+      return; // No alerts to process
+    }
 
     // Group alerts by token to minimize API calls
     const tokenAlerts = new Map();
@@ -140,17 +146,33 @@ async function monitorPrices(bot) {
                 { $set: { 'alerts.$.lastPrice': currentPrice } }
               );
             }
+
+            // After sending alerts
+            if (shouldTrigger) {
+              console.log(`Sent alert to user ${userId} for ${coin.symbol}`);
+            }
           } catch (error) {
             console.error(`Error processing alert for user ${userId}:`, error);
           }
         }
+
+        // After processing each batch
+        console.log(`Processed price check batch for ${batchTokens.length} tokens`);
       }
+
+      // After grouping alerts
+      console.log(`Processing alerts for ${tokenAlerts.size} unique tokens`);
 
       // Add delay between batches
       await new Promise((resolve) => setTimeout(resolve, 1000));
     }
+
+    // After updating prices
+    console.log('Completed price check cycle');
   } catch (error) {
     console.error('Error in price monitoring:', error);
+    // Throw the error to be caught by the wrapper
+    throw error;
   }
 }
 
@@ -778,9 +800,24 @@ async function setupBotCommands(bot) {
     }
   });
 
-  // Start price monitoring
-  setInterval(() => monitorPrices(bot), PRICE_CHECK_INTERVAL);
-  console.log('Price monitoring started');
+  // Start price monitoring with proper error handling and logging
+  console.log('Starting price monitoring service...');
+
+  // Initial price check
+  await monitorPrices(bot).catch((error) => {
+    console.error('Error in initial price check:', error);
+  });
+
+  // Set up recurring price checks
+  setInterval(async () => {
+    try {
+      await monitorPrices(bot);
+    } catch (error) {
+      console.error('Error in price monitoring interval:', error);
+    }
+  }, PRICE_CHECK_INTERVAL);
+
+  console.log(`Price monitoring started - checking every ${PRICE_CHECK_INTERVAL / 1000} seconds`);
 }
 
 module.exports = setupBotCommands;
