@@ -204,10 +204,6 @@
         <div class="command">/subscribe ETH 10 down</div>
         <div class="example">Alert when Ethereum drops by 10%</div>
       </div>
-      <div class="card">
-        <div class="command">/subscribe SOL 15 up</div>
-        <div class="example">Alert when Solana pumps by 15%</div>
-      </div>
     </div>
 
     <h3>Price Level Alerts</h3>
@@ -220,35 +216,54 @@
         <div class="command">/subscribe ETH below 2000</div>
         <div class="example">Alert when Ethereum falls below $2,000</div>
       </div>
+    </div>
+
+    <h3>Wallet Transaction Alerts</h3>
+    <div class="grid">
       <div class="card">
-        <div class="command">/subscribe BNB above 300</div>
-        <div class="example">Alert when BNB goes above $300</div>
+        <div class="command">/trackwallet 0x28C6c06298d514Db089934071355E5743bf21d60 30 ethereum</div>
+        <div class="example">Track ETH transactions above 30 ETH</div>
+      </div>
+      <div class="card">
+        <div class="command">/trackwallet 0x40ec5B33f54e0E8A33A975908C5BA1c14e5BbbDf 20 polygon</div>
+        <div class="example">Track MATIC transactions above 20 MATIC</div>
       </div>
     </div>
 
-    <h3>Exact Price Alerts</h3>
+    <h2>👛 Wallet Transaction Tracking</h2>
+    <div class="card" style="margin-bottom: 2rem">
+      <h3>🔍 Track Large Transactions</h3>
+      <p>Monitor significant transactions for any Ethereum, BSC, or Polygon wallet address:</p>
+      <ol style="margin-left: 1.5rem; margin-top: 0.5rem">
+        <li>Use the <code>/trackwallet</code> command</li>
+        <li>Specify minimum transaction value</li>
+        <li>Get instant alerts for large transfers</li>
+      </ol>
+    </div>
+
+    <h3>Wallet Tracking Examples</h3>
     <div class="grid">
       <div class="card">
-        <div class="command">/subscribe BTC at 45000</div>
-        <div class="example">Alert when Bitcoin hits exactly $45,000</div>
+        <div class="command">/trackwallet 0x28C6c06298d514Db089934071355E5743bf21d60 30 ethereum</div>
+        <div class="example">Track ETH transactions above 30 ETH</div>
       </div>
       <div class="card">
-        <div class="command">/subscribe ETH at 2500</div>
-        <div class="example">Alert when Ethereum reaches $2,500</div>
+        <div class="command">/trackwallet 0x40ec5B33f54e0E8A33A975908C5BA1c14e5BbbDf 20 polygon</div>
+        <div class="example">Track MATIC transactions above 20 MATIC</div>
       </div>
       <div class="card">
-        <div class="command">/subscribe XRP at 1</div>
-        <div class="example">Alert when XRP hits $1.00</div>
+        <div class="command">/trackwallet 0xA9D1e08C7793af67e9d92fe308d5697FB81d3E43 50 bsc</div>
+        <div class="example">Track BNB transactions above 50 BNB</div>
       </div>
     </div>
 
     <div class="tip">
-      <strong>🔥 Pro Tips:</strong>
+      <strong>💡 Wallet Tracking Tips:</strong>
       <ul style="margin-top: 0.5rem">
-        <li>You can set multiple alerts for the same token</li>
-        <li>Combine different alert types to create a comprehensive monitoring strategy</li>
-        <li>Use percentage alerts for short-term moves</li>
-        <li>Use price level alerts for long-term targets</li>
+        <li>Track multiple wallets across different networks</li>
+        <li>Set appropriate minimum values to avoid alert spam</li>
+        <li>Use <code>/listwallet</code> to view your tracked addresses</li>
+        <li>Alerts show transaction value, sender, and receiver</li>
       </ul>
     </div>
 
@@ -268,9 +283,11 @@
     <h2>⚙️ Technical Details</h2>
     <ul>
       <li>Prices are checked every minute</li>
-      <li>Alerts trigger only once and are then automatically removed</li>
-      <li>Price data is sourced from CoinGecko API</li>
+      <li>Alerts trigger once and are automatically removed</li>
+      <li>Price data sourced from CoinGecko API</li>
       <li>Supports top 250 cryptocurrencies by market cap</li>
+      <li>Wallet tracking supports Ethereum, BSC, and Polygon networks</li>
+      <li>Transaction monitoring occurs in real-time</li>
     </ul>
 
     <h2>Available Commands</h2>
@@ -311,6 +328,24 @@
         <strong>Help:</strong><br />
         <code>/help</code> - Show detailed usage guide
       </li>
+      <li>
+        <strong>Track Wallet:</strong><br />
+        <code>/trackwallet &lt;address&gt; &lt;min_value&gt; &lt;network&gt;</code><br />
+        Example: <code>/trackwallet 0x28C6c06298d514Db089934071355E5743bf21d60 30 ethereum</code><br />
+        Supported networks: ethereum, bsc, polygon<br />
+        Triggers when transaction value exceeds minimum value
+      </li>
+      <li>
+        <strong>List Tracked Wallets:</strong><br />
+        <code>/listwallet</code><br />
+        Shows all your tracked wallet addresses
+      </li>
+      <li>
+        <strong>Remove Wallet:</strong><br />
+        <code>/removewallet &lt;address&gt; &lt;network&gt;</code><br />
+        Example: <code>/removewallet 0x28C6c06298d514Db089934071355E5743bf21d60 ethereum</code><br />
+        Stops tracking specified wallet
+      </li>
     </ul>
 
     <h2>Notes</h2>
@@ -321,6 +356,11 @@
       <li>For exact price alerts, there's a 0.1% tolerance to account for price fluctuations</li>
       <li>"greaterthan" and "above" are equivalent commands</li>
       <li>"lessthan" and "below" are equivalent commands</li>
+      <li>Wallet alerts are permanent until removed</li>
+      <li>Each wallet can be tracked on multiple networks</li>
+      <li>Transaction values are converted to USD in alerts</li>
+      <li>Block explorer links are provided for each transaction</li>
+      <li>Address checksums are automatically validated</li>
     </ul>
 
     <section
@@ -335,14 +375,6 @@
         style="display: flex; gap: 1.5rem; justify-content: center; flex-wrap: wrap; margin: 1.5rem 0"
       >
         <a
-          href="https://t.me/koushith"
-          class="contact-item"
-          style="display: flex; align-items: center; gap: 0.5rem; text-decoration: none; color: inherit"
-        >
-          <span style="font-size: 1.2rem">📱</span>
-          <span>Telegram: @koushithamin</span>
-        </a>
-        <a
           href="mailto:koushith97@gmail.com"
           class="contact-item"
           style="display: flex; align-items: center; gap: 0.5rem; text-decoration: none; color: inherit"
@@ -352,17 +384,17 @@
         </a>
       </div>
 
-      <p style="font-size: 0.9rem; color: var(--text-secondary)">We typically respond within 24 hours</p>
+      <p style="font-size: 0.9rem; color: var(--text-secondary)">I typically respond within 24 hours</p>
     </section>
 
     <footer style="text-align: center; margin-top: 3rem; padding: 2rem; border-top: 1px solid var(--border-color)">
-      <p>CryptoAlertBot © 2024 - All rights reserved</p>
+      <p>CryptoAlertBot © 2025</p>
       <p style="margin-top: 0.5rem; color: var(--primary-color); font-weight: 500">
         Project by
         <a
           href="https://github.com/koushith"
           style="color: inherit; text-decoration: none; border-bottom: 1px solid currentColor"
-          >Koushith B R</a
+          >Koushith B.R</a
         >
       </p>
     </footer>

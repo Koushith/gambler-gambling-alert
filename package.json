@@ -8,10 +8,11 @@
     "build": "echo 'No build step required for Node.js project'"
   },
   "dependencies": {
-    "express": "^4.18.2",
-    "node-telegram-bot-api": "^0.64.0",
     "axios": "^1.6.7",
     "dotenv": "^16.4.1",
-    "mongoose": "^8.1.1"
+    "ethers": "^6.13.5",
+    "express": "^4.18.2",
+    "mongoose": "^8.1.1",
+    "node-telegram-bot-api": "^0.64.0"
   }
-} 
+}

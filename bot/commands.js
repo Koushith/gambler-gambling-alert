@@ -1,11 +1,14 @@
 const axios = require('axios');
 const User = require('../models/User.js'); // Assuming you have a User model
+const WalletMonitor = require('./walletMonitor');
+const { ethers } = require('ethers');
 
 // Constants
-const PRICE_CHECK_INTERVAL = 60000; // Check every 1 minute
-const BATCH_SIZE = 50; // Number of alerts to process in each batch
-const RETRY_DELAY = 5000; // 5 seconds
+const PRICE_CHECK_INTERVAL = 30000; // Check every 30 seconds (reduced from 60s)
+const BATCH_SIZE = 25; // Reduced batch size for more frequent updates
+const RETRY_DELAY = 3000; // Reduced to 3 seconds
 const MAX_RETRIES = 3;
+const PRICE_TOLERANCE = 0.005; // 0.5% tolerance for price comparisons
 
 let supportedCoins = [];
 
@@ -23,16 +26,22 @@ async function fetchWithRetry(apiCall, retries = MAX_RETRIES) {
   }
 }
 
+// Add this helper function at the top
+function formatPrice(price) {
+  return typeof price === 'number' ? price.toFixed(2) : 'N/A';
+}
+
 // Price monitoring function
 async function monitorPrices(bot) {
-  console.log('Running price check...');
+  console.log('\n🔄 Starting price check cycle...');
   try {
     // Get all active alerts
     const users = await User.find({ 'alerts.0': { $exists: true } });
-    console.log(`Found ${users.length} users with active alerts`);
+    console.log(`📊 Found ${users.length} users with active alerts`);
 
     if (users.length === 0) {
-      return; // No alerts to process
+      console.log('ℹ️ No active alerts to monitor. Skipping price check.\n');
+      return;
     }
 
     // Group alerts by token to minimize API calls
@@ -49,129 +58,163 @@ async function monitorPrices(bot) {
       });
     });
 
-    // Process tokens in batches
-    const tokens = Array.from(tokenAlerts.keys());
-    for (let i = 0; i < tokens.length; i += BATCH_SIZE) {
-      const batchTokens = tokens.slice(i, i + BATCH_SIZE);
-      const coinIds = batchTokens
-        .map((token) => {
-          const coin = supportedCoins.find((c) => c.symbol.toLowerCase() === token.toLowerCase());
-          return coin ? coin.id : null;
-        })
-        .filter((id) => id);
+    const uniqueTokens = Array.from(tokenAlerts.keys());
+    console.log(`🔍 Monitoring prices for ${uniqueTokens.length} unique tokens: ${uniqueTokens.join(', ')}`);
 
-      // Fetch current prices for batch
+    // Process each token
+    for (const token of uniqueTokens) {
+      const coin = supportedCoins.find((c) => c.symbol.toLowerCase() === token.toLowerCase());
+      if (!coin) {
+        console.log(`⚠️ No coin data found for ${token}`);
+        continue;
+      }
+
+      // Fetch current price for single token
+      console.log(`📡 Fetching price for ${token}...`);
       const response = await fetchWithRetry(() =>
         axios.get('https://api.coingecko.com/api/v3/simple/price', {
           params: {
-            ids: coinIds.join(','),
+            ids: coin.id,
             vs_currencies: 'usd',
           },
         })
       );
 
-      // Check each alert in the batch
-      for (const token of batchTokens) {
-        const coin = supportedCoins.find((c) => c.symbol.toLowerCase() === token.toLowerCase());
-        if (!coin || !response.data[coin.id]) continue;
+      if (!response.data[coin.id]) {
+        console.log(`⚠️ No price data available for ${token}`);
+        continue;
+      }
 
-        const currentPrice = response.data[coin.id].usd;
-        const alerts = tokenAlerts.get(token);
+      const currentPrice = response.data[coin.id].usd;
+      const alerts = tokenAlerts.get(token);
 
-        for (const { userId, alert } of alerts) {
-          try {
-            let shouldTrigger = false;
-            let triggerMessage = '';
+      console.log(`\n💰 ${token}: Current price $${formatPrice(currentPrice)} - Checking ${alerts.length} alerts`);
 
-            // Handle percentage-based alerts (new format)
-            if (alert.threshold && alert.direction) {
-              const priceChange = (currentPrice - alert.lastPrice) / alert.lastPrice;
-              const isUp = currentPrice > alert.lastPrice;
+      for (const { userId, alert } of alerts) {
+        try {
+          console.log(`\n🔍 Checking alert for user ${userId}:`);
+          console.log(`Token: ${token}`);
+          console.log(`Current Price: $${formatPrice(currentPrice)}`);
+          console.log(`Last Price: $${formatPrice(alert.lastPrice)}`);
+          console.log(`Alert Type: ${alert.alertType || 'percentage'}`);
 
-              if (
-                (alert.direction === 'up' && isUp && priceChange >= alert.threshold) ||
-                (alert.direction === 'down' && !isUp && priceChange <= -alert.threshold)
-              ) {
-                shouldTrigger = true;
-                triggerMessage = `${coin.symbol} has moved ${Math.abs(priceChange).toFixed(2)}% ${
-                  isUp ? 'up' : 'down'
-                }!`;
-              }
+          let shouldTrigger = false;
+          let triggerMessage = '';
+
+          // Handle percentage-based alerts
+          if (alert.threshold && alert.direction) {
+            const priceChange = (currentPrice - alert.lastPrice) / alert.lastPrice;
+            const isUp = currentPrice > alert.lastPrice;
+
+            console.log(`Percentage Change: ${(priceChange * 100).toFixed(2)}%`);
+            console.log(`Direction: ${alert.direction}`);
+            console.log(`Threshold: ${(alert.threshold * 100).toFixed(2)}%`);
+
+            if (
+              (alert.direction === 'up' && isUp && priceChange >= alert.threshold) ||
+              (alert.direction === 'down' && !isUp && Math.abs(priceChange) >= alert.threshold)
+            ) {
+              shouldTrigger = true;
+              triggerMessage = `${token} has moved ${Math.abs(priceChange * 100).toFixed(2)}% ${isUp ? 'up' : 'down'}!`;
+              console.log(`🎯 Percentage threshold met!`);
             }
+          }
+          // Handle fixed price alerts
+          else if (alert.alertType) {
+            console.log(`Target Price: $${formatPrice(alert.targetPrice)}`);
 
-            // Handle fixed price alerts
-            else if (alert.alertType) {
-              switch (alert.alertType) {
-                case 'exact':
-                  const tolerance = alert.targetPrice * 0.001; // 0.1% tolerance
-                  if (Math.abs(currentPrice - alert.targetPrice) <= tolerance) {
-                    shouldTrigger = true;
-                    triggerMessage = `${coin.symbol} has reached $${currentPrice.toFixed(2)}!`;
-                  }
-                  break;
+            switch (alert.alertType) {
+              case 'exact':
+                const tolerance = currentPrice * PRICE_TOLERANCE;
+                const priceDiff = Math.abs(currentPrice - alert.targetPrice);
+                console.log(
+                  `Exact price check - Difference: $${formatPrice(priceDiff)}, Tolerance: $${formatPrice(tolerance)}`
+                );
 
-                case 'above':
-                  if (currentPrice >= alert.targetPrice && alert.lastPrice < alert.targetPrice) {
-                    shouldTrigger = true;
-                    triggerMessage = `${coin.symbol} has gone above $${alert.targetPrice.toFixed(2)}!`;
-                  }
-                  break;
+                if (priceDiff <= tolerance) {
+                  shouldTrigger = true;
+                  triggerMessage = `${token} has reached $${formatPrice(currentPrice)}!`;
+                  console.log(`🎯 Exact price target met!`);
+                }
+                break;
 
-                case 'below':
-                  if (currentPrice <= alert.targetPrice && alert.lastPrice > alert.targetPrice) {
-                    shouldTrigger = true;
-                    triggerMessage = `${coin.symbol} has gone below $${alert.targetPrice.toFixed(2)}!`;
-                  }
-                  break;
-              }
+              case 'above':
+                console.log(
+                  `Above price check - Current: $${formatPrice(currentPrice)} vs Target: $${formatPrice(
+                    alert.targetPrice
+                  )}`
+                );
+                if (currentPrice >= alert.targetPrice && alert.lastPrice < alert.targetPrice) {
+                  shouldTrigger = true;
+                  triggerMessage = `${token} has gone above $${formatPrice(alert.targetPrice)}!`;
+                  console.log(`🎯 Above price target met!`);
+                }
+                break;
+
+              case 'below':
+                console.log(
+                  `Below price check - Current: $${formatPrice(currentPrice)} vs Target: $${formatPrice(
+                    alert.targetPrice
+                  )}`
+                );
+                if (currentPrice <= alert.targetPrice && alert.lastPrice > alert.targetPrice) {
+                  shouldTrigger = true;
+                  triggerMessage = `${token} has gone below $${formatPrice(alert.targetPrice)}!`;
+                  console.log(`🎯 Below price target met!`);
+                }
+                break;
             }
+          }
 
-            if (shouldTrigger) {
-              // Send alert
+          if (shouldTrigger) {
+            console.log(`\n🚨 ALERT TRIGGERED - Attempting to send message to user ${userId}`);
+
+            try {
+              // First try to send a test message
+              console.log(`Testing bot message sending to ${userId}...`);
+              await bot.sendMessage(userId, 'Testing alert system...');
+              console.log('Test message sent successfully');
+
+              // If test succeeds, send the actual alert
+              console.log('Sending actual alert message...');
               await bot.sendMessage(
                 userId,
-                `🚨 Price Alert!\n\n` +
-                  `${triggerMessage}\n` +
-                  `💰 Current price: $${currentPrice.toFixed(2)}\n` +
-                  `📊 Previous price: $${alert.lastPrice.toFixed(2)}\n\n` +
+                `🚨 Price Alert!\n\n${triggerMessage}\n` +
+                  `💰 Current price: $${formatPrice(currentPrice)}\n` +
+                  `📊 Previous price: $${formatPrice(alert.lastPrice)}\n\n` +
                   `Want to set another alert? Use /subscribe`
               );
 
+              console.log(`✅ Alert message sent successfully to user ${userId}`);
+
               // Remove triggered alert
+              console.log(`Removing alert from database...`);
               await User.updateOne({ telegramId: userId }, { $pull: { alerts: { _id: alert._id } } });
-            } else {
-              // Update last price
-              await User.updateOne(
-                { telegramId: userId, 'alerts._id': alert._id },
-                { $set: { 'alerts.$.lastPrice': currentPrice } }
-              );
+              console.log(`✅ Alert removed from database for user ${userId}`);
+            } catch (sendError) {
+              console.error(`❌ Error sending alert to user ${userId}:`, sendError);
+              // Log the full error details
+              console.error('Full error:', JSON.stringify(sendError, null, 2));
             }
-
-            // After sending alerts
-            if (shouldTrigger) {
-              console.log(`Sent alert to user ${userId} for ${coin.symbol}`);
-            }
-          } catch (error) {
-            console.error(`Error processing alert for user ${userId}:`, error);
+          } else {
+            // Update last price
+            await User.updateOne(
+              { telegramId: userId, 'alerts._id': alert._id },
+              { $set: { 'alerts.$.lastPrice': currentPrice } }
+            );
+            console.log(`📝 Updated last price for ${token} - User ${userId}: $${formatPrice(currentPrice)}`);
           }
+        } catch (error) {
+          console.error(`❌ Error processing alert for user ${userId}:`, error);
+          console.error('Full error:', JSON.stringify(error, null, 2));
         }
-
-        // After processing each batch
-        console.log(`Processed price check batch for ${batchTokens.length} tokens`);
       }
-
-      // After grouping alerts
-      console.log(`Processing alerts for ${tokenAlerts.size} unique tokens`);
-
-      // Add delay between batches
-      await new Promise((resolve) => setTimeout(resolve, 1000));
     }
 
-    // After updating prices
-    console.log('Completed price check cycle');
+    console.log('\n✅ Completed price check cycle\n');
   } catch (error) {
-    console.error('Error in price monitoring:', error);
-    // Throw the error to be caught by the wrapper
+    console.error('❌ Error in price monitoring:', error);
+    console.error('Full error:', JSON.stringify(error, null, 2));
     throw error;
   }
 }
@@ -305,195 +348,113 @@ async function setupBotCommands(bot) {
     const chatId = msg.chat.id;
     const params = match[1].trim().split(' ');
 
-    const showUsageExample = () => {
-      return bot.sendMessage(
-        chatId,
-        '❓ Here are the ways to set alerts:\n\n' +
-          '1️⃣ Percentage Change:\n' +
-          '📝 /subscribe <token> <percentage> <up/down>\n' +
-          '📊 Example: /subscribe BTC 5 up\n\n' +
-          '2️⃣ Exact Price:\n' +
-          '📝 /subscribe <token> at <price>\n' +
-          '📊 Example: /subscribe BTC at 45000\n\n' +
-          '3️⃣ Price Level:\n' +
-          '📝 /subscribe <token> <above/below/greaterthan/lessthan> <price>\n' +
-          '📊 Example: /subscribe BTC above 45000\n' +
-          '📊 Example: /subscribe BTC greaterthan 45000\n\n' +
-          '💡 Use /tokens to see available tokens!'
-      );
-    };
-
-    if (params.length < 2) {
-      return showUsageExample();
-    }
-
-    const token = params[0].toUpperCase();
-    const secondParam = params[1].toLowerCase();
-
-    // Map alternative commands to standard ones
-    const PRICE_LEVEL_COMMANDS = {
-      above: 'above',
-      greaterthan: 'above',
-      below: 'below',
-      lessthan: 'below',
-    };
-
-    // Validate syntax based on alert type
-    if (secondParam === 'at') {
-      if (params.length !== 3 || isNaN(params[2])) {
-        return bot.sendMessage(
-          chatId,
-          '❌ Invalid exact price format.\n' +
-            '📝 Correct format: /subscribe <token> at <price>\n' +
-            '📊 Example: /subscribe BTC at 45000'
-        );
-      }
-    } else if (Object.keys(PRICE_LEVEL_COMMANDS).includes(secondParam)) {
-      if (params.length !== 3 || isNaN(params[2])) {
-        return bot.sendMessage(
-          chatId,
-          '❌ Invalid price level format.\n' +
-            '📝 Correct format: /subscribe <token> <above/below/greaterthan/lessthan> <price>\n' +
-            '📊 Example: /subscribe BTC above 45000\n' +
-            '📊 Example: /subscribe BTC greaterthan 45000'
-        );
-      }
-    } else {
-      // Percentage change alert
-      if (params.length !== 3 || isNaN(secondParam) || !['up', 'down'].includes(params[2].toLowerCase())) {
-        return bot.sendMessage(
-          chatId,
-          '❌ Invalid percentage format.\n' +
-            '📝 Correct format: /subscribe <token> <percentage> <up/down>\n' +
-            '📊 Example: /subscribe BTC 5 up'
-        );
-      }
-    }
-
     try {
-      const coin = supportedCoins.find((c) => c.symbol.toLowerCase() === token.toLowerCase());
-      if (!coin) {
+      if (params.length < 2) {
         return bot.sendMessage(
           chatId,
-          '❌ Token not found!\n\n' +
-            '💡 Use /tokens to see the list of supported tokens\n' +
-            '📝 Make sure to use the exact token symbol (e.g., BTC, ETH, SOL)'
+          '❌ Invalid format.\n\n' +
+            '📝 Use one of these formats:\n' +
+            '1️⃣ Percentage Alert:\n' +
+            '/subscribe <token> <percentage> <up/down>\n' +
+            'Example: /subscribe BTC 5 up\n\n' +
+            '2️⃣ Price Target Alert:\n' +
+            '/subscribe <token> <above/below> <price>\n' +
+            'Example: /subscribe BTC above 45000'
         );
       }
+
+      const token = params[0].toUpperCase();
+      const secondParam = params[1].toLowerCase();
+      let alertData;
 
       // Get current price
-      const response = await axios.get(
-        `https://api.coingecko.com/api/v3/simple/price?ids=${coin.id}&vs_currencies=usd`
-      );
+      const coin = supportedCoins.find((c) => c.symbol.toLowerCase() === token.toLowerCase());
+      if (!coin) {
+        return bot.sendMessage(chatId, '❌ Token not found! Use /tokens to see supported tokens.');
+      }
 
+      const response = await fetchWithRetry(() =>
+        axios.get(`https://api.coingecko.com/api/v3/simple/price?ids=${coin.id}&vs_currencies=usd`)
+      );
       const currentPrice = response.data[coin.id].usd;
-      if (!currentPrice) {
-        throw new Error('Unable to fetch price');
-      }
 
-      let alertType, targetPrice, alertMessage;
-
-      // Handle different alert types
-      if (secondParam === 'at') {
-        // Exact price alert
-        targetPrice = parseFloat(params[2]);
-        alertType = 'exact';
-        alertMessage = `when price reaches $${targetPrice.toFixed(2)}`;
-
-        // Check if current price already matches target price
-        const tolerance = targetPrice * 0.001; // 0.1% tolerance
-        if (Math.abs(currentPrice - targetPrice) <= tolerance) {
-          // Send immediate alert
-          await bot.sendMessage(
-            chatId,
-            `🚨 Immediate Price Alert!\n\n` +
-              `${token} is already at your target price!\n` +
-              `💰 Current price: $${currentPrice.toFixed(2)}\n` +
-              `🎯 Target price: $${targetPrice.toFixed(2)}\n\n` +
-              `Want to set another alert? Use /subscribe`
-          );
-          return; // Don't save the alert since it's already triggered
-        }
-      } else if (Object.keys(PRICE_LEVEL_COMMANDS).includes(secondParam)) {
+      // Determine alert type and create alert data
+      if (secondParam === 'above' || secondParam === 'below') {
         // Price level alert
-        targetPrice = parseFloat(params[2]);
-        alertType = PRICE_LEVEL_COMMANDS[secondParam]; // Map to standard type
-        const displayCommand =
-          secondParam === 'greaterthan' ? 'greater than' : secondParam === 'lessthan' ? 'less than' : secondParam;
-        alertMessage = `when price goes ${displayCommand} $${targetPrice.toFixed(2)}`;
-
-        // Check if condition is already met
-        const isAlreadyMet =
-          (alertType === 'above' && currentPrice >= targetPrice) ||
-          (alertType === 'below' && currentPrice <= targetPrice);
-
-        if (isAlreadyMet) {
-          await bot.sendMessage(
-            chatId,
-            `🚨 Immediate Price Alert!\n\n` +
-              `${token} is already ${displayCommand} your target price!\n` +
-              `💰 Current price: $${currentPrice.toFixed(2)}\n` +
-              `🎯 Target price: $${targetPrice.toFixed(2)}\n\n` +
-              `Want to set another alert? Use /subscribe`
-          );
-          return; // Don't save the alert since it's already triggered
+        const targetPrice = parseFloat(params[2]);
+        if (isNaN(targetPrice)) {
+          return bot.sendMessage(chatId, '❌ Invalid price value');
         }
-      } else {
-        // Percentage change alert
-        const threshold = parseFloat(secondParam);
-        const direction = params[2].toLowerCase();
 
-        // Store threshold and direction
-        await User.findOneAndUpdate(
-          { telegramId: chatId.toString() },
-          {
-            $push: {
-              alerts: {
-                token: token,
-                threshold: threshold / 100, // Store as decimal
-                direction: direction,
-                lastPrice: currentPrice,
-              },
-            },
-          },
-          { upsert: true, new: true }
-        );
+        alertData = {
+          token,
+          alertType: secondParam,
+          targetPrice,
+          lastPrice: currentPrice,
+        };
 
-        return bot.sendMessage(
-          chatId,
+        // Confirmation message for price level alert
+        const confirmationMessage =
           `✅ Alert set successfully!\n\n` +
-            `🪙 Token: ${token}\n` +
-            `💰 Current price: $${currentPrice.toFixed(2)}\n` +
-            `🎯 Alert will trigger when price goes ${direction} by ${threshold}%\n\n` +
-            `💡 Use /list to see all your active alerts`
-        );
-      }
-
-      // Save non-percentage alerts to database
-      const alertData = {
-        token: token,
-        alertType: alertType,
-        targetPrice: targetPrice,
-        lastPrice: currentPrice,
-      };
-
-      await User.findOneAndUpdate(
-        { telegramId: chatId.toString() },
-        {
-          $push: { alerts: alertData },
-        },
-        { upsert: true, new: true }
-      );
-
-      // Send confirmation message
-      bot.sendMessage(
-        chatId,
-        `✅ Alert set successfully!\n\n` +
           `🪙 Token: ${token}\n` +
           `💰 Current price: $${currentPrice.toFixed(2)}\n` +
-          `🎯 Alert will trigger ${alertMessage}\n\n` +
-          `💡 Use /list to see all your active alerts`
-      );
+          `🎯 Alert will trigger when price goes ${secondParam} $${targetPrice.toFixed(2)}\n` +
+          `\n💡 Use /list to see all your active alerts`;
+
+        await User.findOneAndUpdate(
+          { telegramId: chatId.toString() },
+          { $push: { alerts: alertData } },
+          { upsert: true }
+        );
+
+        await bot.sendMessage(chatId, confirmationMessage);
+      } else {
+        // Percentage change alert
+        if (params.length !== 3 || isNaN(secondParam) || !['up', 'down'].includes(params[2].toLowerCase())) {
+          return bot.sendMessage(
+            chatId,
+            '❌ Invalid percentage format.\n' +
+              '📝 Correct format: /subscribe <token> <percentage> <up/down>\n' +
+              '📊 Example: /subscribe BTC 5 up'
+          );
+        }
+
+        // Percentage change alert
+        alertData = {
+          token,
+          alertType: 'percentage',
+          threshold: parseFloat(secondParam) / 100,
+          direction: params[2].toLowerCase(),
+          lastPrice: currentPrice,
+        };
+
+        // Save alert
+        await User.findOneAndUpdate(
+          { telegramId: chatId.toString() },
+          { $push: { alerts: alertData } },
+          { upsert: true }
+        );
+
+        // Send confirmation message based on alert type
+        let confirmationMessage =
+          `✅ Alert set successfully!\n\n` + `🪙 Token: ${token}\n` + `💰 Current price: $${currentPrice.toFixed(2)}\n`;
+
+        if (alertData.alertType === 'percentage') {
+          confirmationMessage += `📈 Alert will trigger when price ${
+            alertData.direction === 'up' ? 'increases' : 'decreases'
+          } by ${(alertData.threshold * 100).toFixed(2)}%\n`;
+        } else if (alertData.alertType === 'exact') {
+          confirmationMessage += `�� Alert will trigger when price reaches $${alertData.targetPrice.toFixed(2)}\n`;
+        } else if (alertData.alertType === 'above' || alertData.alertType === 'below') {
+          confirmationMessage += `🎯 Alert will trigger when price goes ${
+            alertData.alertType
+          } $${alertData.targetPrice.toFixed(2)}\n`;
+        }
+
+        confirmationMessage += `\n💡 Use /list to see all your active alerts`;
+
+        await bot.sendMessage(chatId, confirmationMessage);
+      }
     } catch (error) {
       console.error('Error in subscribe command:', error);
       bot.sendMessage(
@@ -510,61 +471,81 @@ async function setupBotCommands(bot) {
     try {
       const user = await User.findOne({ telegramId: chatId.toString() });
 
-      if (!user || !user.alerts || user.alerts.length === 0) {
+      if (!user) {
         return bot.sendMessage(
           chatId,
-          '📝 You have no active alerts.\n\n' + '💡 Use /subscribe to set up a new alert!'
+          '❌ No alerts found. Use /subscribe to set up price alerts or /trackwallet to track wallet transactions.'
         );
       }
 
-      const alertsList = user.alerts
-        .map((alert) => {
-          try {
-            // Format for percentage-based alerts (new format)
-            if (alert.threshold && alert.direction) {
-              const threshold = alert.threshold * 100;
-              return (
-                `${alert.token}: ${threshold.toFixed(2)}% ${alert.direction}\n` +
-                `💰 Current: $${alert.lastPrice.toFixed(2)}`
-              );
-            }
+      let message = '📊 *Your Active Alerts*\n\n';
 
-            // Format for target price alerts (legacy format)
-            if (alert.targetPrice && alert.alertType) {
-              let alertDetails;
-              switch (alert.alertType) {
-                case 'percentage':
-                  const change = ((alert.targetPrice - alert.lastPrice) / alert.lastPrice) * 100;
-                  const direction = change > 0 ? 'up' : 'down';
-                  alertDetails = `${Math.abs(change).toFixed(2)}% ${direction}`;
-                  break;
-                case 'exact':
-                  alertDetails = `at $${alert.targetPrice.toFixed(2)}`;
-                  break;
-                default:
-                  alertDetails = `${alert.alertType} $${alert.targetPrice.toFixed(2)}`;
-              }
-              return `${alert.token}: ${alertDetails}\n💰 Current: $${alert.lastPrice.toFixed(2)}`;
-            }
+      // Price Alerts Section
+      if (user.alerts && user.alerts.length > 0) {
+        message += '💰 *Price Alerts:*\n';
+        user.alerts.forEach((alert, index) => {
+          message += `${index + 1}. *${alert.token.toUpperCase()}*\n`;
 
-            // Fallback for any other format
-            return `${alert.token}: Alert set\n💰 Current: $${alert.lastPrice.toFixed(2)}`;
-          } catch (error) {
-            console.error('Error formatting alert:', error, alert);
-            return `${alert.token}: Alert set (format error)`;
+          // Determine alert type and format accordingly
+          if (alert.alertType === 'percentage') {
+            // Percentage based alert
+            message += `📊 Type: Percentage ${alert.direction === 'up' ? 'Increase' : 'Decrease'}\n`;
+            message += `📈 Threshold: ${(alert.threshold * 100).toFixed(2)}%\n`;
+          } else if (alert.alertType === 'exact') {
+            // Exact price alert
+            message += `📊 Type: Exact Price\n`;
+            message += `🎯 Target: $${alert.targetPrice.toFixed(2)}\n`;
+          } else if (alert.alertType === 'above' || alert.alertType === 'below') {
+            // Price range alert
+            message += `📊 Type: Price ${alert.alertType === 'above' ? 'Above' : 'Below'}\n`;
+            message += `🎯 Target: $${alert.targetPrice.toFixed(2)}\n`;
           }
-        })
-        .join('\n\n');
 
-      bot.sendMessage(
-        chatId,
-        `📊 Your Active Alerts:\n\n${alertsList}\n\n` +
-          `💡 Use /subscribe to add more alerts!\n` +
-          `ℹ️ Note: Alerts are automatically removed once triggered.`
-      );
+          if (alert.lastPrice) {
+            message += `💵 Last Price: $${alert.lastPrice.toFixed(2)}\n`;
+          }
+          message += '\n';
+        });
+      }
+
+      // Wallet Alerts Section
+      if (user.walletAlerts && user.walletAlerts.length > 0) {
+        message += '👛 *Wallet Tracking:*\n';
+
+        // Remove duplicate wallet alerts
+        const uniqueWallets = user.walletAlerts.reduce((acc, current) => {
+          const key = `${current.address}-${current.network}`;
+          if (!acc.has(key)) {
+            acc.set(key, current);
+          }
+          return acc;
+        }, new Map());
+
+        Array.from(uniqueWallets.values()).forEach((wallet, index) => {
+          message += `${index + 1}. ${wallet.name ? `*${wallet.name}*\n` : ''}`;
+          message += `📍 Address: \`${wallet.address}\`\n`;
+          message += `🌐 Network: ${wallet.network.toUpperCase()}\n`;
+          message += `💰 Min Value: ${wallet.minValue} ${
+            wallet.network === 'bsc' ? 'BNB' : wallet.network === 'polygon' ? 'MATIC' : 'ETH'
+          }\n\n`;
+        });
+      }
+
+      // Add help footer
+      message +=
+        '\n📚 *Available Commands:*\n' +
+        '• /subscribe - Set price alerts\n' +
+        '• /trackwallet - Track wallet transactions\n' +
+        '• /remove - Remove specific alerts\n' +
+        '• /help - Show all commands';
+
+      await bot.sendMessage(chatId, message, {
+        parse_mode: 'Markdown',
+        disable_web_page_preview: true,
+      });
     } catch (error) {
       console.error('Error in list command:', error);
-      bot.sendMessage(chatId, '❌ Sorry, there was an error fetching your alerts.\n' + 'Please try again in a moment!');
+      bot.sendMessage(chatId, '❌ Error fetching your alerts. Please try again.');
     }
   });
 
@@ -800,6 +781,73 @@ async function setupBotCommands(bot) {
     }
   });
 
+  // Track wallet command
+  bot.onText(/\/trackwallet (.+)/, async (msg, match) => {
+    const chatId = msg.chat.id;
+    const params = match[1].trim().split(' ');
+
+    if (params.length < 1) {
+      return bot.sendMessage(
+        chatId,
+        '❌ Invalid format.\n' +
+          '📝 Usage:\n' +
+          '/trackwallet <address> [name] [min_value] [network]\n' +
+          '📊 Example:\n' +
+          '/trackwallet 0x123... Vitalik 10 ethereum'
+      );
+    }
+
+    const [address, name = '', minValueStr = '1', network = 'ethereum'] = params;
+
+    try {
+      // Use ethers.getAddress to validate the address (new method in v6)
+      try {
+        ethers.getAddress(address); // This will throw if invalid
+      } catch (e) {
+        return bot.sendMessage(chatId, '❌ Invalid address format');
+      }
+
+      // Validate network
+      if (!['ethereum', 'bsc', 'polygon'].includes(network.toLowerCase())) {
+        return bot.sendMessage(chatId, '❌ Invalid network. Supported networks: ethereum, bsc, polygon');
+      }
+
+      // Validate and parse minimum value
+      const minValue = parseFloat(minValueStr);
+      if (isNaN(minValue) || minValue <= 0) {
+        return bot.sendMessage(chatId, '❌ Invalid minimum value');
+      }
+
+      // Add wallet to tracking list
+      await User.findOneAndUpdate(
+        { telegramId: chatId.toString() },
+        {
+          $push: {
+            walletAlerts: {
+              address: address.toLowerCase(),
+              name,
+              minValue,
+              network: network.toLowerCase(),
+            },
+          },
+        },
+        { upsert: true }
+      );
+
+      bot.sendMessage(
+        chatId,
+        `✅ Now tracking wallet:\n` +
+          `🌐 Network: ${network.toUpperCase()}\n` +
+          `📍 Address: ${address}\n` +
+          `${name ? `👤 Name: ${name}\n` : ''}` +
+          `💰 Minimum Value: ${minValue} ${network === 'bsc' ? 'BNB' : network === 'polygon' ? 'MATIC' : 'ETH'}`
+      );
+    } catch (error) {
+      console.error('Error setting up wallet tracking:', error);
+      bot.sendMessage(chatId, '❌ Error setting up wallet tracking. Please try again.');
+    }
+  });
+
   // Start price monitoring with proper error handling and logging
   console.log('Starting price monitoring service...');
 
@@ -818,6 +866,10 @@ async function setupBotCommands(bot) {
   }, PRICE_CHECK_INTERVAL);
 
   console.log(`Price monitoring started - checking every ${PRICE_CHECK_INTERVAL / 1000} seconds`);
+
+  // Initialize wallet monitoring
+  const walletMonitor = new WalletMonitor(bot);
+  await walletMonitor.start();
 }
 
 module.exports = setupBotCommands;
