@@ -172,7 +172,7 @@ async function monitorPrices(bot) {
             try {
               // First try to send a test message
               console.log(`Testing bot message sending to ${userId}...`);
-              await bot.sendMessage(userId, 'Testing alert system...');
+              await bot.sendMessage(userId, 'Alert Alert Alert 🚨🚨🚨');
               console.log('Test message sent successfully');
 
               // If test succeeds, send the actual alert
@@ -358,8 +358,9 @@ async function setupBotCommands(bot) {
             '/subscribe <token> <percentage> <up/down>\n' +
             'Example: /subscribe BTC 5 up\n\n' +
             '2️⃣ Price Target Alert:\n' +
-            '/subscribe <token> <above/below> <price>\n' +
-            'Example: /subscribe BTC above 45000'
+            '/subscribe <token> <above/below/exact> <price>\n' +
+            'Example: /subscribe BTC above 45000\n' +
+            'Example: /subscribe BTC exact 45000'
         );
       }
 
@@ -379,7 +380,7 @@ async function setupBotCommands(bot) {
       const currentPrice = response.data[coin.id].usd;
 
       // Determine alert type and create alert data
-      if (secondParam === 'above' || secondParam === 'below') {
+      if (secondParam === 'above' || secondParam === 'below' || secondParam === 'exact') {
         // Price level alert
         const targetPrice = parseFloat(params[2]);
         if (isNaN(targetPrice)) {
@@ -393,12 +394,33 @@ async function setupBotCommands(bot) {
           lastPrice: currentPrice,
         };
 
+        // Validation for current price vs target price
+        if (secondParam === 'above' && currentPrice > targetPrice) {
+          return bot.sendMessage(
+            chatId,
+            '❌ Current price is already above target price!\n' +
+              `💰 Current: $${currentPrice.toFixed(2)}\n` +
+              `🎯 Target: $${targetPrice.toFixed(2)}`
+          );
+        }
+        if (secondParam === 'below' && currentPrice < targetPrice) {
+          return bot.sendMessage(
+            chatId,
+            '❌ Current price is already below target price!\n' +
+              `💰 Current: $${currentPrice.toFixed(2)}\n` +
+              `🎯 Target: $${targetPrice.toFixed(2)}`
+          );
+        }
+
         // Confirmation message for price level alert
         const confirmationMessage =
           `✅ Alert set successfully!\n\n` +
           `🪙 Token: ${token}\n` +
           `💰 Current price: $${currentPrice.toFixed(2)}\n` +
-          `🎯 Alert will trigger when price goes ${secondParam} $${targetPrice.toFixed(2)}\n` +
+          `🎯 Alert will trigger when price ${
+            secondParam === 'exact' ? 'reaches' : 'goes ' + secondParam
+          } $${targetPrice.toFixed(2)}\n` +
+          (secondParam === 'exact' ? `⚖️ Tolerance: ±${(PRICE_TOLERANCE * 100).toFixed(1)}%\n` : '') +
           `\n💡 Use /list to see all your active alerts`;
 
         await User.findOneAndUpdate(
@@ -409,7 +431,7 @@ async function setupBotCommands(bot) {
 
         await bot.sendMessage(chatId, confirmationMessage);
       } else {
-        // Percentage change alert
+        // Handle existing percentage alerts
         if (params.length !== 3 || isNaN(secondParam) || !['up', 'down'].includes(params[2].toLowerCase())) {
           return bot.sendMessage(
             chatId,
@@ -428,30 +450,21 @@ async function setupBotCommands(bot) {
           lastPrice: currentPrice,
         };
 
-        // Save alert
+        // Save alert and send confirmation message
         await User.findOneAndUpdate(
           { telegramId: chatId.toString() },
           { $push: { alerts: alertData } },
           { upsert: true }
         );
 
-        // Send confirmation message based on alert type
-        let confirmationMessage =
-          `✅ Alert set successfully!\n\n` + `🪙 Token: ${token}\n` + `💰 Current price: $${currentPrice.toFixed(2)}\n`;
-
-        if (alertData.alertType === 'percentage') {
-          confirmationMessage += `📈 Alert will trigger when price ${
-            alertData.direction === 'up' ? 'increases' : 'decreases'
-          } by ${(alertData.threshold * 100).toFixed(2)}%\n`;
-        } else if (alertData.alertType === 'exact') {
-          confirmationMessage += `�� Alert will trigger when price reaches $${alertData.targetPrice.toFixed(2)}\n`;
-        } else if (alertData.alertType === 'above' || alertData.alertType === 'below') {
-          confirmationMessage += `🎯 Alert will trigger when price goes ${
-            alertData.alertType
-          } $${alertData.targetPrice.toFixed(2)}\n`;
-        }
-
-        confirmationMessage += `\n💡 Use /list to see all your active alerts`;
+        const confirmationMessage =
+          `✅ Alert set successfully!\n\n` +
+          `🪙 Token: ${token}\n` +
+          `💰 Current price: $${currentPrice.toFixed(2)}\n` +
+          `📈 Alert will trigger when price ${alertData.direction === 'up' ? 'increases' : 'decreases'} by ${(
+            alertData.threshold * 100
+          ).toFixed(2)}%\n` +
+          `\n💡 Use /list to see all your active alerts`;
 
         await bot.sendMessage(chatId, confirmationMessage);
       }
@@ -838,7 +851,7 @@ async function setupBotCommands(bot) {
         chatId,
         `✅ Now tracking wallet:\n` +
           `🌐 Network: ${network.toUpperCase()}\n` +
-          `📍 Address: ${address}\n` +
+          `�� Address: ${address}\n` +
           `${name ? `👤 Name: ${name}\n` : ''}` +
           `💰 Minimum Value: ${minValue} ${network === 'bsc' ? 'BNB' : network === 'polygon' ? 'MATIC' : 'ETH'}`
       );
