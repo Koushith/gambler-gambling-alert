@@ -1,169 +1,55 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="scroll-smooth">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>CryptoAlertBot Documentation</title>
-    <style>
-      :root {
-        --primary-color: #2563eb;
-        --secondary-color: #1e40af;
-        --text-color: #1f2937;
-        --code-bg: #f3f4f6;
-        --border-color: #e5e7eb;
-      }
-
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-      }
-
-      body {
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-        line-height: 1.6;
-        color: var(--text-color);
-        padding: 2rem;
-        max-width: 1200px;
-        margin: 0 auto;
-      }
-
-      .header {
-        text-align: center;
-        margin-bottom: 3rem;
-        padding: 2rem;
-        background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
-        color: white;
-        border-radius: 12px;
-      }
-
-      h1 {
-        font-size: 2.5rem;
-        margin-bottom: 1rem;
-      }
-
-      h2 {
-        font-size: 1.8rem;
-        margin: 2rem 0 1rem;
-        color: var(--primary-color);
-      }
-
-      h3 {
-        font-size: 1.3rem;
-        margin: 1.5rem 0 0.5rem;
-      }
-
-      p {
-        margin-bottom: 1rem;
-      }
-
-      .command {
-        background-color: var(--code-bg);
-        padding: 1rem;
-        border-radius: 8px;
-        margin: 1rem 0;
-        font-family: monospace;
-      }
-
-      .example {
-        border-left: 4px solid var(--primary-color);
-        padding-left: 1rem;
-        margin: 1rem 0;
-      }
-
-      .grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-        gap: 2rem;
-        margin: 2rem 0;
-      }
-
-      .card {
-        border: 1px solid var(--border-color);
-        border-radius: 8px;
-        padding: 1.5rem;
-      }
-
-      .tip {
-        background-color: #dbeafe;
-        padding: 1rem;
-        border-radius: 8px;
-        margin: 1rem 0;
-      }
-
-      @media (max-width: 768px) {
-        body {
-          padding: 0.75rem;
-        }
-
-        .header {
-          padding: 1.5rem 1rem;
-          margin-bottom: 2rem;
-        }
-
-        h1 {
-          font-size: 2rem;
-        }
-
-        h2 {
-          font-size: 1.5rem;
-        }
-
-        .grid {
-          grid-template-columns: 1fr;
-          gap: 1rem;
-        }
-
-        .card {
-          padding: 1rem;
-        }
-
-        .command {
-          padding: 0.75rem;
-          font-size: 0.9rem;
-          overflow-x: auto;
-        }
-
-        .contact-grid {
-          flex-direction: column;
-          align-items: center;
-          gap: 1rem;
-        }
-
-        ul,
-        ol {
-          padding-left: 1.25rem;
-        }
-
-        code {
-          word-break: break-word;
-          white-space: pre-wrap;
-        }
-      }
-    </style>
+    <title>CryptoAlertBot</title>
+    <link rel="stylesheet" href="https://rsms.me/inter/inter.css" />
+    <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              mono: ['JetBrains Mono', 'monospace'],
+              sans: ['Inter var', 'system-ui', 'sans-serif'],
+            },
+          },
+        },
+      };
+    </script>
   </head>
-  <body>
-    <div class="header">
-      <h1>🤖 CryptoAlertBot Documentation</h1>
-      <p>Your personal cryptocurrency price alert assistant</p>
+  <body class="bg-gray-900 text-gray-100 antialiased min-h-screen px-4 py-8 md:px-8 lg:px-16 max-w-7xl mx-auto">
+    <div class="header space-y-2 text-center mb-12">
+      <h1
+        class="text-4xl md:text-5xl font-bold bg-gradient-to-r from-blue-500 to-purple-600 bg-clip-text text-transparent"
+      >
+        🤖 CryptoAlertBot Documentation
+      </h1>
+      <p class="text-xl text-gray-400">Your personal cryptocurrency price alert assistant</p>
     </div>
 
-    <h2>📚 Getting Started</h2>
-    <div class="card" style="margin-bottom: 2rem">
-      <h3>🤖 Find the Bot</h3>
-      <p>Follow these steps to start using CryptoAlertBot:</p>
-      <ol style="margin-left: 1.5rem; margin-top: 0.5rem">
-        <li>Open Telegram and search for <code>@Sigma_degens_bot</code></li>
-        <li>Click "Start" or send the <code>/start</code> command</li>
+    <h2 class="text-3xl font-bold mb-6 text-gray-100">📚 Getting Started</h2>
+    <div class="bg-gray-800 rounded-xl p-6 shadow-lg mb-8">
+      <h3 class="text-2xl font-semibold mb-4">🤖 Find the Bot</h3>
+      <p class="text-gray-300">Follow these steps to start using CryptoAlertBot:</p>
+      <ol class="list-decimal ml-6 mt-4 space-y-2 text-gray-300">
+        <li>
+          Open Telegram and search for
+          <code class="bg-gray-700 px-2 py-1 rounded text-blue-400">@Sigma_degens_bot</code>
+        </li>
+        <li>
+          Click "Start" or send the <code class="bg-gray-700 px-2 py-1 rounded text-blue-400">/start</code> command
+        </li>
         <li>The bot will respond with a welcome message and available commands</li>
       </ol>
-      <div class="tip" style="margin-top: 1rem">
-        <strong>💡 Quick Start:</strong>
-        <p style="margin-top: 0.5rem">
+      <div class="bg-gray-700/50 rounded-lg p-4 mt-6">
+        <strong class="text-blue-400">💡 Quick Start:</strong>
+        <p class="mt-2">
           Click this link to open the bot directly:
           <a
             href="https://t.me/Sigma_degens_bot"
-            style="color: var(--primary-color); text-decoration: none; border-bottom: 1px solid currentColor"
+            class="text-blue-400 hover:text-blue-300 border-b border-blue-400 hover:border-blue-300"
           >
             @Sigma_degens_bot
           </a>
@@ -171,232 +57,383 @@
       </div>
     </div>
 
-    <div class="grid">
-      <div class="card">
-        <h3>🎯 Setting Alerts</h3>
-        <p>There are three types of alerts you can set:</p>
-        <ul>
-          <li>Percentage Change</li>
-          <li>Exact Price</li>
-          <li>Price Level (Above/Below)</li>
+    <div class="grid md:grid-cols-2 gap-6 mb-12">
+      <div class="bg-gray-800 rounded-xl p-6 shadow-lg">
+        <h3 class="text-2xl font-semibold mb-4">🎯 Setting Alerts</h3>
+        <p class="text-gray-300 mb-4">There are three types of alerts you can set:</p>
+        <ul class="space-y-2 text-gray-300">
+          <li class="flex items-center space-x-2">
+            <span class="text-blue-400">•</span><span>Percentage Change</span>
+          </li>
+          <li class="flex items-center space-x-2"><span class="text-blue-400">•</span><span>Exact Price</span></li>
+          <li class="flex items-center space-x-2">
+            <span class="text-blue-400">•</span><span>Price Level (Above/Below)</span>
+          </li>
         </ul>
       </div>
-      <div class="card">
-        <h3>📊 Managing Alerts</h3>
-        <p>Use these commands to manage your alerts:</p>
-        <ul>
-          <li>/list - View active alerts</li>
-          <li>/tokens - Browse available tokens</li>
-          <li>/help - Get detailed help</li>
+      <div class="bg-gray-800 rounded-xl p-6 shadow-lg">
+        <h3 class="text-2xl font-semibold mb-4">📊 Managing Alerts</h3>
+        <p class="text-gray-300 mb-4">Use these commands to manage your alerts:</p>
+        <ul class="space-y-2 text-gray-300">
+          <li class="flex items-center space-x-2">
+            <span class="text-blue-400">•</span><span>/list - View active alerts</span>
+          </li>
+          <li class="flex items-center space-x-2">
+            <span class="text-blue-400">•</span><span>/tokens - Browse available tokens</span>
+          </li>
+          <li class="flex items-center space-x-2">
+            <span class="text-blue-400">•</span><span>/help - Get detailed help</span>
+          </li>
         </ul>
       </div>
     </div>
 
-    <h2>📈 Alert Examples</h2>
+    <h2 class="text-3xl font-bold mb-6">📈 Alert Examples</h2>
 
-    <h3>Percentage Change Alerts</h3>
-    <div class="grid">
-      <div class="card">
-        <div class="command">/subscribe BTC 5 up</div>
-        <div class="example">Alert when Bitcoin increases by 5%</div>
+    <h3 class="text-2xl font-semibold mb-4">Percentage Change Alerts</h3>
+    <div class="grid md:grid-cols-2 gap-6 mb-8">
+      <div class="bg-gray-800 rounded-xl p-6 shadow-lg">
+        <div class="font-mono text-blue-400 mb-2">/subscribe BTC 5 up</div>
+        <div class="text-gray-300">Alert when Bitcoin increases by 5%</div>
       </div>
-      <div class="card">
-        <div class="command">/subscribe ETH 10 down</div>
-        <div class="example">Alert when Ethereum drops by 10%</div>
+      <div class="bg-gray-800 rounded-xl p-6 shadow-lg">
+        <div class="font-mono text-blue-400 mb-2">/subscribe ETH 10 down</div>
+        <div class="text-gray-300">Alert when Ethereum drops by 10%</div>
       </div>
     </div>
 
-    <h3>Price Level Alerts</h3>
-    <div class="grid">
-      <div class="card">
-        <div class="command">/subscribe BTC above 50000</div>
-        <div class="example">Alert when Bitcoin crosses above $50,000</div>
+    <h3 class="text-2xl font-semibold mb-4">Price Level Alerts</h3>
+    <div class="grid md:grid-cols-2 gap-6 mb-8">
+      <div class="bg-gray-800 rounded-xl p-6 shadow-lg">
+        <div class="font-mono text-blue-400 mb-2">/subscribe BTC above 50000</div>
+        <div class="text-gray-300">Alert when Bitcoin crosses above $50,000</div>
       </div>
-      <div class="card">
-        <div class="command">/subscribe ETH below 2000</div>
-        <div class="example">Alert when Ethereum falls below $2,000</div>
-      </div>
-    </div>
-
-    <h3>Wallet Transaction Alerts</h3>
-    <div class="grid">
-      <div class="card">
-        <div class="command">/trackwallet 0x28C6c06298d514Db089934071355E5743bf21d60 30 ethereum</div>
-        <div class="example">Track ETH transactions above 30 ETH</div>
-      </div>
-      <div class="card">
-        <div class="command">/trackwallet 0x40ec5B33f54e0E8A33A975908C5BA1c14e5BbbDf 20 polygon</div>
-        <div class="example">Track MATIC transactions above 20 MATIC</div>
+      <div class="bg-gray-800 rounded-xl p-6 shadow-lg">
+        <div class="font-mono text-blue-400 mb-2">/subscribe ETH below 2000</div>
+        <div class="text-gray-300">Alert when Ethereum falls below $2,000</div>
       </div>
     </div>
 
-    <h2>👛 Wallet Transaction Tracking</h2>
-    <div class="card" style="margin-bottom: 2rem">
-      <h3>🔍 Track Large Transactions</h3>
-      <p>Monitor significant transactions for any Ethereum, BSC, or Polygon wallet address:</p>
-      <ol style="margin-left: 1.5rem; margin-top: 0.5rem">
-        <li>Use the <code>/trackwallet</code> command</li>
+    <h3 class="text-2xl font-semibold mb-4">Wallet Transaction Alerts</h3>
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mb-8">
+      <div class="bg-gray-800 rounded-xl p-4 sm:p-6 shadow-lg">
+        <div class="font-mono text-blue-400 mb-2 text-sm sm:text-base break-all">
+          /trackwallet 0x28C6c06298d514Db089934071355E5743bf21d60 30 ethereum
+        </div>
+        <div class="text-gray-300 text-sm sm:text-base">Track ETH transactions above 30 ETH</div>
+      </div>
+      <div class="bg-gray-800 rounded-xl p-4 sm:p-6 shadow-lg">
+        <div class="font-mono text-blue-400 mb-2 text-sm sm:text-base break-all">
+          /trackwallet 0x40ec5B33f54e0E8A33A975908C5BA1c14e5BbbDf 20 polygon
+        </div>
+        <div class="text-gray-300 text-sm sm:text-base">Track MATIC transactions above 20 MATIC</div>
+      </div>
+    </div>
+
+    <h2 class="text-3xl font-bold mb-6">👛 Wallet Transaction Tracking</h2>
+    <div class="bg-gray-800 rounded-xl p-6 shadow-lg mb-8">
+      <h3 class="text-2xl font-semibold mb-4">🔍 Track Large Transactions</h3>
+      <p class="text-gray-300 mb-4">
+        Monitor significant transactions for any Ethereum, BSC, or Polygon wallet address:
+      </p>
+      <ol class="list-decimal ml-6 space-y-2 text-gray-300">
+        <li>Use the <code class="bg-gray-700 px-2 py-1 rounded text-blue-400">/trackwallet</code> command</li>
         <li>Specify minimum transaction value</li>
         <li>Get instant alerts for large transfers</li>
       </ol>
     </div>
 
-    <h3>Wallet Tracking Examples</h3>
-    <div class="grid">
-      <div class="card">
-        <div class="command">/trackwallet 0x28C6c06298d514Db089934071355E5743bf21d60 30 ethereum</div>
-        <div class="example">Track ETH transactions above 30 ETH</div>
-      </div>
-      <div class="card">
-        <div class="command">/trackwallet 0x40ec5B33f54e0E8A33A975908C5BA1c14e5BbbDf 20 polygon</div>
-        <div class="example">Track MATIC transactions above 20 MATIC</div>
-      </div>
-      <div class="card">
-        <div class="command">/trackwallet 0xA9D1e08C7793af67e9d92fe308d5697FB81d3E43 50 bsc</div>
-        <div class="example">Track BNB transactions above 50 BNB</div>
-      </div>
-    </div>
+    <section class="space-y-6 w-full">
+      <h3 class="text-xl sm:text-2xl font-semibold text-brand-200">Wallet Tracking Examples</h3>
 
-    <div class="tip">
-      <strong>💡 Wallet Tracking Tips:</strong>
-      <ul style="margin-top: 0.5rem">
-        <li>Track multiple wallets across different networks</li>
-        <li>Set appropriate minimum values to avoid alert spam</li>
-        <li>Use <code>/listwallet</code> to view your tracked addresses</li>
-        <li>Alerts show transaction value, sender, and receiver</li>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 w-full">
+        <!-- ETH Example -->
+        <div class="bg-dark-200 rounded-xl p-4 sm:p-6 border border-dark-50/10 shadow-xl w-full overflow-hidden">
+          <div class="space-y-2 w-full">
+            <div class="flex flex-col">
+              <code class="font-mono text-brand-300 text-sm overflow-x-auto whitespace-nowrap pb-2">/trackwallet</code>
+              <code
+                class="font-mono text-brand-300/80 text-sm overflow-x-auto whitespace-nowrap pb-2 scrollbar-thin scrollbar-thumb-brand-300/20 scrollbar-track-dark-300"
+                >0x28C6c06298d514Db089934071355E5743bf21d60</code
+              >
+              <code class="font-mono text-brand-300 text-sm">30 ethereum</code>
+            </div>
+          </div>
+          <p class="text-zinc-300 text-sm mt-3 border-t border-dark-50/10 pt-3">Track ETH transactions above 30 ETH</p>
+        </div>
+
+        <!-- MATIC Example -->
+        <div class="bg-dark-200 rounded-xl p-4 sm:p-6 border border-dark-50/10 shadow-xl w-full overflow-hidden">
+          <div class="space-y-2 w-full">
+            <div class="flex flex-col">
+              <code class="font-mono text-brand-300 text-sm overflow-x-auto whitespace-nowrap pb-2">/trackwallet</code>
+              <code
+                class="font-mono text-brand-300/80 text-sm overflow-x-auto whitespace-nowrap pb-2 scrollbar-thin scrollbar-thumb-brand-300/20 scrollbar-track-dark-300"
+                >0x40ec5B33f54e0E8A33A975908C5BA1c14e5BbbDf</code
+              >
+              <code class="font-mono text-brand-300 text-sm">20 polygon</code>
+            </div>
+          </div>
+          <p class="text-zinc-300 text-sm mt-3 border-t border-dark-50/10 pt-3">
+            Track MATIC transactions above 20 MATIC
+          </p>
+        </div>
+
+        <!-- BSC Example -->
+        <div class="bg-dark-200 rounded-xl p-4 sm:p-6 border border-dark-50/10 shadow-xl w-full overflow-hidden">
+          <div class="space-y-2 w-full">
+            <div class="flex flex-col">
+              <code class="font-mono text-brand-300 text-sm overflow-x-auto whitespace-nowrap pb-2">/trackwallet</code>
+              <code
+                class="font-mono text-brand-300/80 text-sm overflow-x-auto whitespace-nowrap pb-2 scrollbar-thin scrollbar-thumb-brand-300/20 scrollbar-track-dark-300"
+                >0xA9D1e08C7793af67e9d92fe308d5697FB81d3E43</code
+              >
+              <code class="font-mono text-brand-300 text-sm">50 bsc</code>
+            </div>
+          </div>
+          <p class="text-zinc-300 text-sm mt-3 border-t border-dark-50/10 pt-3">Track BNB transactions above 50 BNB</p>
+        </div>
+      </div>
+
+      <!-- Helper Text -->
+      <div class="mt-4 bg-brand-900/30 rounded-lg p-4 text-sm text-zinc-300">
+        <p class="flex items-center gap-2">
+          <svg class="w-4 h-4 text-brand-300 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+            />
+          </svg>
+          <span>Swipe horizontally to view full wallet addresses on mobile</span>
+        </p>
+      </div>
+    </section>
+
+    <div class="bg-gray-800/50 rounded-xl p-6 mb-8">
+      <strong class="text-blue-400 block mb-4">💡 Wallet Tracking Tips:</strong>
+      <ul class="space-y-2 text-gray-300">
+        <li class="flex items-center space-x-2">
+          <span class="text-blue-400">•</span>
+          <span>Track multiple wallets across different networks</span>
+        </li>
+        <li class="flex items-center space-x-2">
+          <span class="text-blue-400">•</span>
+          <span>Set appropriate minimum values to avoid alert spam</span>
+        </li>
+        <li class="flex items-center space-x-2">
+          <span class="text-blue-400">•</span>
+          <span
+            >Use <code class="bg-gray-700 px-2 py-1 rounded text-blue-400">/listwallet</code> to view your tracked
+            addresses</span
+          >
+        </li>
+        <li class="flex items-center space-x-2">
+          <span class="text-blue-400">•</span>
+          <span>Alerts show transaction value, sender, and receiver</span>
+        </li>
       </ul>
     </div>
 
-    <h2>🔍 Finding Tokens</h2>
-    <p>Use the /tokens command to browse or search for available tokens:</p>
-    <ul>
-      <li><code>/tokens</code> - List all supported tokens</li>
-      <li><code>/tokens btc</code> - Search for Bitcoin</li>
-      <li><code>/tokens ethereum</code> - Search by name</li>
-    </ul>
+    <h2 class="text-3xl font-bold mb-6">🔍 Finding Tokens</h2>
+    <div class="bg-gray-800 rounded-xl p-6 shadow-lg mb-8">
+      <p class="text-gray-300 mb-4">Use the /tokens command to browse or search for available tokens:</p>
+      <ul class="space-y-3">
+        <li class="flex items-center space-x-2">
+          <span class="text-blue-400">•</span>
+          <code class="bg-gray-700 px-2 py-1 rounded text-blue-400">/tokens</code>
+          <span class="text-gray-300">- List all supported tokens</span>
+        </li>
+        <li class="flex items-center space-x-2">
+          <span class="text-blue-400">•</span>
+          <code class="bg-gray-700 px-2 py-1 rounded text-blue-400">/tokens btc</code>
+          <span class="text-gray-300">- Search for Bitcoin</span>
+        </li>
+        <li class="flex items-center space-x-2">
+          <span class="text-blue-400">•</span>
+          <code class="bg-gray-700 px-2 py-1 rounded text-blue-400">/tokens ethereum</code>
+          <span class="text-gray-300">- Search by name</span>
+        </li>
+      </ul>
 
-    <div class="tip">
-      <strong>💡 Pro Tip:</strong> Use exact symbol matching for precise results. For example, use "/tokens btc" instead
-      of "/tokens bitcoin" to find Bitcoin quickly.
+      <div class="bg-gray-700/50 rounded-lg p-4 mt-6">
+        <strong class="text-blue-400">💡 Pro Tip:</strong>
+        <p class="mt-2 text-gray-300">
+          Use exact symbol matching for precise results. For example, use "/tokens btc" instead of "/tokens bitcoin" to
+          find Bitcoin quickly.
+        </p>
+      </div>
     </div>
 
-    <h2>⚙️ Technical Details</h2>
-    <ul>
-      <li>Prices are checked every minute</li>
-      <li>Alerts trigger once and are automatically removed</li>
-      <li>Price data sourced from CoinGecko API</li>
-      <li>Supports top 250 cryptocurrencies by market cap</li>
-      <li>Wallet tracking supports Ethereum, BSC, and Polygon networks</li>
-      <li>Transaction monitoring occurs in real-time</li>
-    </ul>
+    <h2 class="text-3xl font-bold mb-6">⚙️ Technical Details</h2>
+    <div class="bg-gray-800 rounded-xl p-6 shadow-lg mb-8">
+      <ul class="space-y-3 text-gray-300">
+        <li class="flex items-center space-x-2">
+          <span class="text-blue-400">•</span>
+          <span>Prices are checked every minute</span>
+        </li>
+        <li class="flex items-center space-x-2">
+          <span class="text-blue-400">•</span>
+          <span>Alerts trigger once and are automatically removed</span>
+        </li>
+        <li class="flex items-center space-x-2">
+          <span class="text-blue-400">•</span>
+          <span>Price data sourced from CoinGecko API</span>
+        </li>
+        <li class="flex items-center space-x-2">
+          <span class="text-blue-400">•</span>
+          <span>Supports top 250 cryptocurrencies by market cap</span>
+        </li>
+        <li class="flex items-center space-x-2">
+          <span class="text-blue-400">•</span>
+          <span>Wallet tracking supports Ethereum, BSC, and Polygon networks</span>
+        </li>
+        <li class="flex items-center space-x-2">
+          <span class="text-blue-400">•</span>
+          <span>Transaction monitoring occurs in real-time</span>
+        </li>
+      </ul>
+    </div>
 
-    <h2>Available Commands</h2>
-    <ul>
-      <li>
-        <strong>Percentage Change Alert:</strong><br />
-        <code>/subscribe &lt;token&gt; &lt;percentage&gt; &lt;up/down&gt;</code><br />
-        Example: <code>/subscribe BTC 5 up</code><br />
-        Triggers when price moves up/down by specified percentage
-      </li>
-      <li>
-        <strong>Exact Price Alert:</strong><br />
-        <code>/subscribe &lt;token&gt; at &lt;price&gt;</code><br />
-        Example: <code>/subscribe BTC at 45000</code><br />
-        Triggers when price reaches the exact value (within 0.1% tolerance)
-      </li>
-      <li>
-        <strong>Price Level Alert:</strong><br />
-        <code>/subscribe &lt;token&gt; &lt;above/below/greaterthan/lessthan&gt; &lt;price&gt;</code><br />
-        Examples:<br />
-        <code>/subscribe BTC above 45000</code><br />
-        <code>/subscribe BTC greaterthan 45000</code><br />
-        <code>/subscribe BTC below 45000</code><br />
-        <code>/subscribe BTC lessthan 45000</code><br />
-        Triggers when price crosses above or below the specified level
-      </li>
-      <li>
-        <strong>List Alerts:</strong><br />
-        <code>/list</code><br />
-        Shows all your active alerts
-      </li>
-      <li>
-        <strong>View Tokens:</strong><br />
-        <code>/tokens</code> - List all supported tokens<br />
-        <code>/tokens &lt;search&gt;</code> - Search for specific tokens
-      </li>
-      <li>
-        <strong>Help:</strong><br />
-        <code>/help</code> - Show detailed usage guide
-      </li>
-      <li>
-        <strong>Track Wallet:</strong><br />
-        <code>/trackwallet &lt;address&gt; &lt;min_value&gt; &lt;network&gt;</code><br />
-        Example: <code>/trackwallet 0x28C6c06298d514Db089934071355E5743bf21d60 30 ethereum</code><br />
-        Supported networks: ethereum, bsc, polygon<br />
-        Triggers when transaction value exceeds minimum value
-      </li>
-      <li>
-        <strong>List Tracked Wallets:</strong><br />
-        <code>/listwallet</code><br />
-        Shows all your tracked wallet addresses
-      </li>
-      <li>
-        <strong>Remove Wallet:</strong><br />
-        <code>/removewallet &lt;address&gt; &lt;network&gt;</code><br />
-        Example: <code>/removewallet 0x28C6c06298d514Db089934071355E5743bf21d60 ethereum</code><br />
-        Stops tracking specified wallet
-      </li>
-    </ul>
+    <h2 class="text-3xl font-bold mb-6">Available Commands</h2>
+    <div class="bg-gray-800 rounded-xl p-6 shadow-lg mb-8">
+      <ul class="space-y-8">
+        <li>
+          <strong class="text-xl text-gray-100 block mb-2">Percentage Change Alert:</strong>
+          <code class="bg-gray-700 px-3 py-2 rounded text-blue-400 block mb-2"
+            >/subscribe &lt;token&gt; &lt;percentage&gt; &lt;up/down&gt;</code
+          >
+          <p class="text-gray-300">
+            Example: <code class="bg-gray-700 px-2 py-1 rounded text-blue-400">/subscribe BTC 5 up</code>
+          </p>
+          <p class="text-gray-400 mt-1">Triggers when price moves up/down by specified percentage</p>
+        </li>
+        <li>
+          <strong class="text-xl text-gray-100 block mb-2">Exact Price Alert:</strong>
+          <code class="bg-gray-700 px-3 py-2 rounded text-blue-400 block mb-2"
+            >/subscribe &lt;token&gt; at &lt;price&gt;</code
+          >
+          <p class="text-gray-300">
+            Example: <code class="bg-gray-700 px-2 py-1 rounded text-blue-400">/subscribe BTC at 45000</code>
+          </p>
+          <p class="text-gray-400 mt-1">Triggers when price reaches the exact value (within 0.1% tolerance)</p>
+        </li>
+        <li>
+          <strong class="text-xl text-gray-100 block mb-2">Price Level Alert:</strong>
+          <code class="bg-gray-700 px-3 py-2 rounded text-blue-400 block mb-2"
+            >/subscribe &lt;token&gt; &lt;above/below/greaterthan/lessthan&gt; &lt;price&gt;</code
+          >
+          <p class="text-gray-300">Examples:</p>
+          <div class="space-y-2 mt-2 ml-4">
+            <code class="bg-gray-700 px-2 py-1 rounded text-blue-400 block">/subscribe BTC above 45000</code>
+            <code class="bg-gray-700 px-2 py-1 rounded text-blue-400 block">/subscribe BTC greaterthan 45000</code>
+            <code class="bg-gray-700 px-2 py-1 rounded text-blue-400 block">/subscribe BTC below 45000</code>
+            <code class="bg-gray-700 px-2 py-1 rounded text-blue-400 block">/subscribe BTC lessthan 45000</code>
+          </div>
+          <p class="text-gray-400 mt-2">Triggers when price crosses above or below the specified level</p>
+        </li>
+      </ul>
+    </div>
 
-    <h2>Notes</h2>
-    <ul>
-      <li>Alerts are automatically removed once triggered</li>
-      <li>You can have multiple alerts for the same token</li>
-      <li>Price checks occur every minute</li>
-      <li>For exact price alerts, there's a 0.1% tolerance to account for price fluctuations</li>
-      <li>"greaterthan" and "above" are equivalent commands</li>
-      <li>"lessthan" and "below" are equivalent commands</li>
-      <li>Wallet alerts are permanent until removed</li>
-      <li>Each wallet can be tracked on multiple networks</li>
-      <li>Transaction values are converted to USD in alerts</li>
-      <li>Block explorer links are provided for each transaction</li>
-      <li>Address checksums are automatically validated</li>
-    </ul>
+    <h2 class="text-3xl font-bold mb-6">Notes</h2>
+    <div class="bg-gray-800 rounded-xl p-6 shadow-lg mb-8">
+      <ul class="space-y-3 text-gray-300">
+        <li class="flex items-center space-x-2">
+          <span class="text-blue-400">•</span>
+          <span>Alerts are automatically removed once triggered</span>
+        </li>
+        <li class="flex items-center space-x-2">
+          <span class="text-blue-400">•</span>
+          <span>You can have multiple alerts for the same token</span>
+        </li>
+        <li class="flex items-center space-x-2">
+          <span class="text-blue-400">•</span>
+          <span>Price checks occur every minute</span>
+        </li>
+        <li class="flex items-center space-x-2">
+          <span class="text-blue-400">•</span>
+          <span>For exact price alerts, there's a 0.1% tolerance to account for price fluctuations</span>
+        </li>
+        <li class="flex items-center space-x-2">
+          <span class="text-blue-400">•</span>
+          <span>"greaterthan" and "above" are equivalent commands</span>
+        </li>
+        <li class="flex items-center space-x-2">
+          <span class="text-blue-400">•</span>
+          <span>"lessthan" and "below" are equivalent commands</span>
+        </li>
+        <li class="flex items-center space-x-2">
+          <span class="text-blue-400">•</span>
+          <span>Wallet alerts are permanent until removed</span>
+        </li>
+        <li class="flex items-center space-x-2">
+          <span class="text-blue-400">•</span>
+          <span>Each wallet can be tracked on multiple networks</span>
+        </li>
+        <li class="flex items-center space-x-2">
+          <span class="text-blue-400">•</span>
+          <span>Transaction values are converted to USD in alerts</span>
+        </li>
+        <li class="flex items-center space-x-2">
+          <span class="text-blue-400">•</span>
+          <span>Block explorer links are provided for each transaction</span>
+        </li>
+        <li class="flex items-center space-x-2">
+          <span class="text-blue-400">•</span>
+          <span>Address checksums are automatically validated</span>
+        </li>
+      </ul>
+    </div>
 
-    <section
-      class="help-section"
-      style="margin-top: 4rem; padding: 2rem; background: var(--card-bg); border-radius: 12px; text-align: center"
-    >
-      <h2>🤝 Need Help?</h2>
-      <p style="margin: 1rem 0">Having issues or want to suggest new features? Reach out!</p>
+    <section class="bg-gray-800 rounded-xl p-8 mt-16 text-center">
+      <h2 class="text-3xl font-bold mb-4">🤝 Need Help?</h2>
+      <p class="text-gray-300 mb-6">Having issues or want to suggest new features? Reach out!</p>
 
-      <div
-        class="contact-grid"
-        style="display: flex; gap: 1.5rem; justify-content: center; flex-wrap: wrap; margin: 1.5rem 0"
-      >
+      <div class="flex justify-center flex-wrap gap-6">
         <a
           href="mailto:koushith97@gmail.com"
-          class="contact-item"
-          style="display: flex; align-items: center; gap: 0.5rem; text-decoration: none; color: inherit"
+          class="flex items-center gap-2 text-gray-300 hover:text-blue-400 transition-colors"
         >
-          <span style="font-size: 1.2rem">📧</span>
+          <span class="text-xl">📧</span>
           <span>Email: koushith97@gmail.com</span>
         </a>
       </div>
 
-      <p style="font-size: 0.9rem; color: var(--text-secondary)">I typically respond within 24 hours</p>
+      <p class="text-sm text-gray-400 mt-4">I typically respond within 24 hours</p>
     </section>
 
-    <footer style="text-align: center; margin-top: 3rem; padding: 2rem; border-top: 1px solid var(--border-color)">
-      <p>CryptoAlertBot © 2025</p>
-      <p style="margin-top: 0.5rem; color: var(--primary-color); font-weight: 500">
+    <footer class="text-center mt-12 pt-8 border-t border-gray-800">
+      <p class="text-gray-400">CryptoAlertBot © 2025</p>
+      <p class="mt-2">
         Project by
         <a
           href="https://github.com/koushith"
-          style="color: inherit; text-decoration: none; border-bottom: 1px solid currentColor"
-          >Koushith B.R</a
+          class="text-blue-400 hover:text-blue-300 border-b border-blue-400 hover:border-blue-300"
         >
+          Koushith B.R
+        </a>
       </p>
     </footer>
+
+    <style>
+      /* Custom scrollbar styling */
+      .scrollbar-thin::-webkit-scrollbar {
+        height: 4px;
+      }
+
+      .scrollbar-thin::-webkit-scrollbar-track {
+        background: transparent;
+      }
+
+      .scrollbar-thin::-webkit-scrollbar-thumb {
+        background: rgba(56, 189, 248, 0.2);
+        border-radius: 2px;
+      }
+
+      .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+        background: rgba(56, 189, 248, 0.3);
+      }
+    </style>
   </body>
 </html>
